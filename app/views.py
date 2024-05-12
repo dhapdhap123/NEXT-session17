@@ -2,6 +2,9 @@ from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
+from django.http import HttpResponse
+import json
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Comment, Post, Like
 
@@ -104,15 +107,24 @@ def delete_comment(request, post_pk, comment_pk):
    comment.delete()
    return redirect('detail', post_pk)
 
+@csrf_exempt
 def like(request):
-   post_pk = request.POST.get('post_pk')
-   post = Post.objects.get(pk=post_pk)
-   user_like = Like.objects.filter(user=request.user, post=post)
-   if (len(user_like) > 0):
-      user_like.delete()
-      return redirect('detail', post_pk)
-   Like.objects.create(
-   post=post,
-   user=request.user
-   )
-   return redirect('detail', post_pk)
+   if request.method == 'POST':
+      request_body = json.loads(request.body)
+      post_pk = request_body['post_pk']
+      post = Post.objects.get(pk=post_pk)
+      user_like = Like.objects.filter(user=request.user, post=post)
+
+   
+      if (len(user_like) > 0):
+         user_like.delete()
+      else:
+         Like.objects.create(
+            post=post,
+            user=request.user
+         )
+
+      response = {
+         'like_count': post.likes.count(),
+      }
+      return HttpResponse(json.dumps(response))
