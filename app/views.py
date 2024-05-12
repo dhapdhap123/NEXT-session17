@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 
-from .models import Comment, Post
+from .models import Comment, Post, Like
 
 
 def signup(request):
@@ -64,6 +64,7 @@ def new(request):
 @login_required(login_url="/registration/login/")
 def detail(request, post_pk):
    post = Post.objects.get(pk=post_pk)
+   likes = Like.objects.filter(post=post)
    
    if request.method == 'POST':
         content = request.POST['content']
@@ -72,9 +73,9 @@ def detail(request, post_pk):
             content=content,
             author=request.user
         )
-        return redirect('detail', post_pk);
+        return redirect('detail', post_pk)
 
-   return render(request, 'detail.html', {'post':post})
+   return render(request, 'detail.html', {'post':post, 'like_length': len(likes)})
 
 
 def edit(request, post_pk):
@@ -103,4 +104,16 @@ def delete(request, post_pk):
 def delete_comment(request, post_pk, comment_pk):
    comment = Comment.objects.get(pk=comment_pk)
    comment.delete()
+   return redirect('detail', post_pk)
+
+def like(request, post_pk):
+   post = Post.objects.get(pk=post_pk)
+   user_like = Like.objects.filter(user=request.user, post=post)
+   if (len(user_like) > 0):
+      user_like.delete()
+      return redirect('detail', post_pk)
+   Like.objects.create(
+   post=post,
+   user=request.user
+   )
    return redirect('detail', post_pk)

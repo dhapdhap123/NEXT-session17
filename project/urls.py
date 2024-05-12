@@ -28,5 +28,6 @@ urlpatterns = [
    path("registration/signup/", views.signup, name="signup"),
    path("registration/login/", views.login, name="login"),
    path("registration/logout/", views.logout, name="logout"),
+   path("like/<int:post_pk>", views.like, name="like"),
 ]
 
