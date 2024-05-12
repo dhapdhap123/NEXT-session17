@@ -18,11 +18,7 @@
     <input type="text" name="content" />
     <button type="submit">댓글 작성</button>
   </form>
-  <form action="{% url 'like' %}" method="POST">
-    {% csrf_token %}
-    <input type="hidden" name="post_pk" value="{{post_pk}}" />
-    <button type="submit">좋아요</button>
-  </form>
+  <button class="like-button">좋아요</button>
   {% for comment in post.comments.all %}
   <li>
     <span>{{comment.content}} </span>
@@ -33,4 +29,12 @@
   </li>
   {% endfor %}
 </div>
+<script>
+  const likeButton = document.querySelector(".like-button");
+  const handleLike = () => {
+    alert("좋아요 버튼을 눌렀습니다.");
+  };
+  likeButton.addEventListener("click", handleLike);
+</script>
 {% endblock %}
+  
