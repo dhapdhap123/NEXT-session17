@@ -63,9 +63,7 @@ def new(request):
 
 @login_required(login_url="/registration/login/")
 def detail(request, post_pk):
-   post = Post.objects.get(pk=post_pk)
-   likes = Like.objects.filter(post=post)
-   
+   post = Post.objects.get(pk=post_pk)   
    if request.method == 'POST':
         content = request.POST['content']
         Comment.objects.create(
@@ -75,7 +73,7 @@ def detail(request, post_pk):
         )
         return redirect('detail', post_pk)
 
-   return render(request, 'detail.html', {'post':post, 'like_length': len(likes)})
+   return render(request, 'detail.html', {'post':post})
 
 
 def edit(request, post_pk):
@@ -106,7 +104,8 @@ def delete_comment(request, post_pk, comment_pk):
    comment.delete()
    return redirect('detail', post_pk)
 
-def like(request, post_pk):
+def like(request):
+   post_pk = request.POST.get('post_pk')
    post = Post.objects.get(pk=post_pk)
    user_like = Like.objects.filter(user=request.user, post=post)
    if (len(user_like) > 0):
